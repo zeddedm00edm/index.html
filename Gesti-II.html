@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GestiónII — Coordinación Ingeniería Industrial</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f4f4f0;--surface:#ffffff;--surface2:#f9f9f6;--border:#e5e3de;
+  --text:#1a1a18;--muted:#787570;--faint:#c0bdb8;
+  --primary:#016a6f;--primary-light:#cfe8e7;
+  --red:#c0392b;--red-light:#fdecea;
+  --orange:#d35400;--orange-light:#fdf0e8;
+  --green:#27ae60;--green-light:#eafaf1;
+  --blue:#2471a3;--blue-light:#eaf4fb;
+  --radius:10px;--radius-lg:16px;
+  --shadow:0 2px 8px rgba(0,0,0,.07);--shadow-lg:0 8px 24px rgba(0,0,0,.1);
+  --font:'Inter',sans-serif;
+}
+[data-theme="dark"]{
+  --bg:#141412;--surface:#1e1d1b;--surface2:#242320;--border:#2e2d2a;
+  --text:#d4d2ce;--muted:#7a7874;--faint:#4a4846;
+  --primary:#3d9fa8;--primary-light:#1e3538;
+  --red:#e05a4a;--red-light:#2a1a18;
+  --orange:#e07830;--orange-light:#2a1f14;
+  --green:#4db876;--green-light:#162a1e;
+  --blue:#5b9bd5;--blue-light:#162030;
+  --shadow:0 2px 8px rgba(0,0,0,.3);--shadow-lg:0 8px 24px rgba(0,0,0,.4);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-font-smoothing:antialiased}
+body{font-family:var(--font);background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+button{cursor:pointer;border:none;background:none;font:inherit;color:inherit}
+input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--primary);outline-offset:2px;border-radius:4px}
+
+/* HEADER */
+.header{background:var(--surface);border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.logo-mark{display:flex;align-items:center;gap:10px}
+.logo-icon{width:34px;height:34px;background:var(--primary);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo-icon svg{width:18px;height:18px}
+.brand h1{font-size:15px;font-weight:700;letter-spacing:-.02em}
+.brand p{font-size:11px;color:var(--muted)}
+.header-right{display:flex;align-items:center;gap:10px}
+.date-chip{font-size:11px;color:var(--muted);background:var(--surface2);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+.icon-btn{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--muted);border:1px solid var(--border);transition:background .15s,color .15s}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.btn-primary{background:var(--primary);color:#fff;padding:7px 16px;border-radius:8px;font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;transition:filter .15s}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-primary svg{width:14px;height:14px}
+
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;padding:20px 24px 0}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow)}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.kpi-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;font-weight:500}
+.kpi-icon{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+.kpi-icon svg{width:14px;height:14px}
+.kpi-value{font-size:28px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.03em}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:4px}
+.kpi-bar-wrap{height:4px;background:var(--border);border-radius:4px;margin-top:10px;overflow:hidden}
+.kpi-bar-fill{height:100%;border-radius:4px;transition:width .6s ease}
+.kpi.red .kpi-value{color:var(--red)} .kpi.red .kpi-icon{background:var(--red-light);color:var(--red)} .kpi.red .kpi-bar-fill{background:var(--red)}
+.kpi.orange .kpi-value{color:var(--orange)} .kpi.orange .kpi-icon{background:var(--orange-light);color:var(--orange)} .kpi.orange .kpi-bar-fill{background:var(--orange)}
+.kpi.green .kpi-value{color:var(--green)} .kpi.green .kpi-icon{background:var(--green-light);color:var(--green)} .kpi.green .kpi-bar-fill{background:var(--green)}
+.kpi.blue .kpi-value{color:var(--blue)} .kpi.blue .kpi-icon{background:var(--blue-light);color:var(--blue)} .kpi.blue .kpi-bar-fill{background:var(--blue)}
+.kpi.primary .kpi-value{color:var(--primary)} .kpi.primary .kpi-icon{background:var(--primary-light);color:var(--primary)} .kpi.primary .kpi-bar-fill{background:var(--primary)}
+
+/* CHARTS ROW */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px 24px 0}
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow)}
+.chart-title{font-size:13px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:6px}
+.chart-title span{width:8px;height:8px;border-radius:50%;display:inline-block}
+.chart-wrap{position:relative;height:160px}
+
+/* BOARD */
+.board-section{padding:16px 24px 24px}
+.board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.board-title{font-size:15px;font-weight:700}
+.filters{display:flex;gap:8px;flex-wrap:wrap}
+.filter-pill{font-size:12px;padding:5px 12px;border-radius:20px;border:1px solid var(--border);color:var(--muted);background:var(--surface);transition:all .15s}
+.filter-pill:hover{background:var(--surface2);color:var(--text)}
+.filter-pill.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.search-wrap{position:relative}
+.search-wrap input{padding:6px 12px 6px 30px;border:1px solid var(--border);border-radius:20px;background:var(--surface);font-size:12px;width:180px;transition:border-color .15s}
+.search-wrap input:focus{outline:none;border-color:var(--primary)}
+.search-icon{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint);pointer-events:none}
+.search-icon svg{width:12px;height:12px}
+
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.col{background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px;min-height:200px}
+.col-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.col-name{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600}
+.col-dot{width:9px;height:9px;border-radius:50%}
+.col-badge{font-size:11px;background:var(--border);color:var(--muted);padding:2px 8px;border-radius:10px;font-weight:600}
+.tasks{display:flex;flex-direction:column;gap:8px}
+
+/* TASK CARD */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow);position:relative;overflow:hidden;transition:box-shadow .15s,transform .15s;cursor:default}
+.card:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px)}
+.card-stripe{position:absolute;left:0;top:0;bottom:0;width:4px}
+.card-stripe.p-critica{background:var(--red)}
+.card-stripe.p-alta{background:var(--orange)}
+.card-stripe.p-media{background:var(--primary)}
+.card-stripe.p-baja{background:var(--faint)}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:6px}
+.card-title{font-size:13px;font-weight:600;line-height:1.35;flex:1}
+.card.done .card-title{text-decoration:line-through;color:var(--muted)}
+.card.done{opacity:.6}
+.card-btns{display:flex;gap:2px;opacity:0;transition:opacity .15s;flex-shrink:0}
+.card:hover .card-btns{opacity:1}
+.card-btn{width:26px;height:26px;border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--muted)}
+.card-btn svg{width:13px;height:13px}
+.card-btn.ok:hover{background:var(--green-light);color:var(--green)}
+.card-btn.del:hover{background:var(--red-light);color:var(--red)}
+.card-btn.move:hover{background:var(--primary-light);color:var(--primary)}
+.card-desc{font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.45}
+.card-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.priority-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px;white-space:nowrap}
+.priority-tag.p-critica{background:var(--red-light);color:var(--red)}
+.priority-tag.p-alta{background:var(--orange-light);color:var(--orange)}
+.priority-tag.p-media{background:var(--primary-light);color:var(--primary)}
+.priority-tag.p-baja{background:var(--surface2);color:var(--muted)}
+.due-tag{font-size:10px;display:flex;align-items:center;gap:3px;font-weight:500}
+.due-tag svg{width:10px;height:10px}
+.due-tag.overdue{color:var(--red)}
+.due-tag.today{color:var(--orange)}
+.due-tag.soon{color:var(--primary)}
+.due-tag.ok{color:var(--muted)}
+
+/* PROGRESS BAR on card */
+.card-progress{margin-top:8px}
+.card-progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px}
+.card-progress-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden}
+.card-progress-fill{height:100%;border-radius:4px;transition:width .5s ease}
+
+/* AI tag */
+.ai-tag{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--blue);background:var(--blue-light);padding:2px 6px;border-radius:10px;margin-top:6px}
+.ai-tag svg{width:9px;height:9px}
+
+/* EMPTY STATE */
+.empty{text-align:center;padding:32px 16px;color:var(--faint)}
+.empty svg{width:28px;height:28px;margin:0 auto 8px;opacity:.4;display:block}
+.empty p{font-size:11px}
+
+/* MODAL */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(4px);opacity:0;pointer-events:none;transition:opacity .2s}
+.overlay.open{opacity:1;pointer-events:all}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;width:100%;max-width:460px;box-shadow:var(--shadow-lg);transform:translateY(10px) scale(.98);transition:transform .2s}
+.overlay.open .modal{transform:none}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-head h2{font-size:16px;font-weight:700}
+.ai-box{background:var(--blue-light);border:1px solid rgba(36,113,163,.2);border-radius:8px;padding:10px 12px;margin-bottom:16px;display:none;font-size:12px;color:var(--blue);line-height:1.5}
+.ai-box strong{display:block;margin-bottom:2px;font-size:12px}
+.form-group{margin-bottom:14px}
+.form-label{font-size:12px;font-weight:600;display:block;margin-bottom:5px;color:var(--text)}
+.form-input,.form-select,.form-textarea{width:100%;padding:8px 12px;border:1px solid var(--border);border-radius:8px;background:var(--surface2);font-size:13px;color:var(--text);transition:border-color .15s,box-shadow .15s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(1,106,111,.12)}
+.form-textarea{resize:vertical;min-height:64px}
+.form-hint{font-size:11px;color:var(--muted);margin-top:3px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-block{width:100%;padding:10px;border-radius:8px;font-size:14px;font-weight:700;background:var(--primary);color:#fff;margin-top:4px}
+.btn-block:hover{filter:brightness(1.08)}
+
+/* RESPONSIVE */
+@media(max-width:900px){.kanban{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}.charts-row{grid-template-columns:1fr}}
+@media(max-width:600px){.header{padding:10px 14px}.kpi-grid,.charts-row,.board-section{padding-left:14px;padding-right:14px}.date-chip{display:none}.form-row{grid-template-columns:1fr}}
+
+/* ANIMATIONS */
+@keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{animation:fadeUp .18s ease both}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo-mark">
+    <div class="logo-icon">
+      <svg viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2" y="3" width="8" height="2" rx="1" fill="white"/>
+        <rect x="2" y="8" width="14" height="2" rx="1" fill="white" opacity=".75"/>
+        <rect x="2" y="13" width="5" height="2" rx="1" fill="white" opacity=".45"/>
+        <circle cx="14" cy="14" r="3" fill="white" opacity=".9"/>
+        <path d="M13 14l.8.8 1.6-1.6" stroke="#016a6f" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div class="brand">
+      <h1>GestiónII</h1>
+      <p>Coordinación · Ingeniería Industrial · UAEH</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <span class="date-chip" id="dateChip"></span>
+    <button class="icon-btn" id="themeBtn" aria-label="Cambiar tema" title="Modo oscuro/claro">
+      <svg id="themeIcon" viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4.22 1.78a1 1 0 011.42 1.42l-.7.7a1 1 0 11-1.42-1.42l.7-.7zM18 9h-1a1 1 0 100 2h1a1 1 0 100-2zM10 15a5 5 0 100-10 5 5 0 000 10zm0 2a1 1 0 110 2 1 1 0 010-2zm-5.66-.34a1 1 0 001.42-1.42l-.7-.7a1 1 0 00-1.42 1.42l.7.7zM3 11H2a1 1 0 100-2h1a1 1 0 100 2zm1.64-7.22l.7.7a1 1 0 01-1.42 1.42l-.7-.7a1 1 0 011.42-1.42z"/></svg>
+    </button>
+    <button class="btn-primary" onclick="openModal()">
+      <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"/></svg>
+      Nueva tarea
+    </button>
+  </div>
+</header>
+
+<!-- KPIs -->
+<div class="kpi-grid" id="kpiGrid">
+  <div class="kpi red">
+    <div class="kpi-top"><span class="kpi-label">Críticas</span><div class="kpi-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg></div></div>
+    <div class="kpi-value" id="kv-critica">0</div><div class="kpi-sub">Atención inmediata</div>
+    <div class="kpi-bar-wrap"><div class="kpi-bar-fill" id="kb-critica" style="width:0%"></div></div>
+  </div>
+  <div class="kpi orange">
+    <div class="kpi-top"><span class="kpi-label">Alta prioridad</span><div class="kpi-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a8 8 0 100 16A8 8 0 0010 2zm1 11H9v-2h2v2zm0-4H9V5h2v4z"/></svg></div></div>
+    <div class="kpi-value" id="kv-alta">0</div><div class="kpi-sub">Importantes esta semana</div>
+    <div class="kpi-bar-wrap"><div class="kpi-bar-fill" id="kb-alta" style="width:0%"></div></div>
+  </div>
+  <div class="kpi green">
+    <div class="kpi-top"><span class="kpi-label">Completadas</span><div class="kpi-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></div></div>
+    <div class="kpi-value" id="kv-done">0</div><div class="kpi-sub">Esta semana</div>
+    <div class="kpi-bar-wrap"><div class="kpi-bar-fill" id="kb-done" style="width:0%"></div></div>
+  </div>
+  <div class="kpi blue">
+    <div class="kpi-top"><span class="kpi-label">En progreso</span><div class="kpi-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/></svg></div></div>
+    <div class="kpi-value" id="kv-prog">0</div><div class="kpi-sub">Activas ahora</div>
+    <div class="kpi-bar-wrap"><div class="kpi-bar-fill" id="kb-prog" style="width:0%"></div></div>
+  </div>
+  <div class="kpi primary">
+    <div class="kpi-top"><span class="kpi-label">% Avance semanal</span><div class="kpi-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></div></div>
+    <div class="kpi-value" id="kv-pct">0%</div><div class="kpi-sub">Tareas completadas / total</div>
+    <div class="kpi-bar-wrap"><div class="kpi-bar-fill" id="kb-pct" style="width:0%"></div></div>
+  
+  <div class="kpi primary">
+    <div class="kpi-top"><span class="kpi-label">Desempeño</span><div class="kpi-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M3 3a1 1 0 011-1h12a1 1 0 011 1v14l-3.5-2-3.5 2-3.5-2L3 17V3z"/></svg></div></div>
+    <div class="kpi-value" id="kv-perf">0%</div><div class="kpi-sub">Cumplimiento de tareas</div>
+    <div class="kpi-bar-wrap"><div class="kpi-bar-fill" id="kb-perf" style="width:0%"></div></div>
+  </div>
+</div>
+
+<!-- CHARTS -->
+<div class="charts-row">
+  <div class="chart-card">
+    <div class="chart-title"><span style="background:var(--primary)"></span>Distribución por prioridad</div>
+    <div class="chart-wrap"><canvas id="chartPie"></canvas></div>
+  </div>
+  <div class="chart-card">
+    <div class="chart-title"><span style="background:var(--blue)"></span>Días restantes por tarea</div>
+    <div class="chart-wrap"><canvas id="chartBar"></canvas></div>
+  </div>
+
+  <div class="chart-card">
+    <div class="chart-title"><span style="background:var(--green)"></span>Estudio de tiempos</div>
+    <div class="chart-wrap"><canvas id="chartTime"></canvas></div>
+  </div>
+</div>
+
+<div class="charts-row" style="padding-top:12px">
+  <div class="chart-card" style="grid-column:1 / -1;">
+    <div class="chart-title"><span style="background:var(--primary)"></span>Desempeño semanal general</div>
+    <div class="chart-wrap"><canvas id="chartWeekly"></canvas></div>
+  </div>
+</div>
+
+<!-- BOARD -->
+<div class="board-section">
+  <div class="board-header">
+    <div class="board-title">Tablero de tareas</div>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div class="filters" id="filterBtns">
+        <button class="filter-pill active" data-f="todas" onclick="setFilter('todas',this)">Todas</button>
+        <button class="filter-pill" data-f="pendiente" onclick="setFilter('pendiente',this)">Pendientes</button>
+        <button class="filter-pill" data-f="en-progreso" onclick="setFilter('en-progreso',this)">En progreso</button>
+        <button class="filter-pill" data-f="completada" onclick="setFilter('completada',this)">Completadas</button>
+        <button class="filter-pill" data-f="p-critica" onclick="setFilter('p-critica',this)">🔴 Críticas</button>
+      </div>
+      <div class="search-wrap">
+        <span class="search-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/></svg></span>
+        <input type="text" placeholder="Buscar…" id="searchInput" oninput="render()">
+      </div>
+    </div>
+  </div>
+
+  <div class="kanban">
+    <div class="col">
+      <div class="col-head"><div class="col-name"><div class="col-dot" style="background:#e67e22"></div>Pendientes</div><span class="col-badge" id="cnt-pendiente">0</span></div>
+      <div class="tasks" id="col-pendiente"></div>
+    </div>
+    <div class="col">
+      <div class="col-head"><div class="col-name"><div class="col-dot" style="background:var(--primary)"></div>En Progreso</div><span class="col-badge" id="cnt-en-progreso">0</span></div>
+      <div class="tasks" id="col-en-progreso"></div>
+    </div>
+    <div class="col">
+      <div class="col-head"><div class="col-name"><div class="col-dot" style="background:var(--green)"></div>Completadas</div><span class="col-badge" id="cnt-completada">0</span></div>
+      <div class="tasks" id="col-completada"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay" onclick="outsideClose(event)">
+  <div class="modal">
+    <div class="modal-head">
+      <h2>Registrar nueva tarea</h2>
+      <button class="icon-btn" onclick="closeModal()" aria-label="Cerrar"><svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/></svg></button>
+    </div>
+    <div class="ai-box" id="aiBox"><strong>✦ Clasificación automática IA</strong><span id="aiMsg"></span></div>
+    <div class="form-group">
+      <label class="form-label" for="fTitle">Nombre de la tarea *</label>
+      <input class="form-input" id="fTitle" type="text" placeholder="Ej: Enviar horarios al decanato" oninput="aiAnalyze()">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="fDesc">Descripción (opcional)</label>
+      <textarea class="form-textarea" id="fDesc" placeholder="Contexto, recursos, observaciones…"></textarea>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="fDate">Fecha límite *</label>
+        <input class="form-input" id="fDate" type="date" onchange="aiAnalyze()">
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="fStatus">Estado inicial</label>
+        <select class="form-select" id="fStatus">
+          <option value="pendiente">Pendiente</option>
+          <option value="en-progreso">En progreso</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="fUrgency">¿Qué tan urgente es?</label>
+      <select class="form-select" id="fUrgency" onchange="aiAnalyze()">
+        <option value="">— Selecciona —</option>
+        <option value="hoy">Debe hacerse hoy</option>
+        <option value="semana">Esta semana</option>
+        <option value="despues">Puede esperar</option>
+      </select>
+      <p class="form-hint">La IA combina urgencia + fecha para asignar prioridad automáticamente (Matriz de Eisenhower).</p>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="fPriority">Prioridad (ajustable)</label>
+      <select class="form-select" id="fPriority">
+        <option value="p-baja">⬜ Baja</option>
+        <option value="p-media" selected>🟢 Media</option>
+        <option value="p-alta">🟠 Alta</option>
+        <option value="p-critica">🔴 Crítica</option>
+      </select>
+    </div>
+    <button class="btn-block" onclick="addTask()">Agregar al tablero →</button>
+  </div>
+</div>
+
+<script>
+// ─── DATA ────────────────────────────────────────────────────
+function todayStr(){return new Date().toISOString().split('T')[0]}
+function plusDays(n){const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().split('T')[0]}
+
+let tasks=[
+  {id:1,title:'Revisar y enviar horarios del semestre siguiente',desc:'Verificar cruces y disponibilidad de docentes antes de publicar',date:plusDays(1),status:'pendiente',priority:'p-critica',ai:true,planned:90,actual:0,waste:20},
+  {id:2,title:'Redactar correo de bienvenida a nuevos alumnos',desc:'Incluir fechas de inscripción, links y contactos clave',date:plusDays(3),status:'pendiente',priority:'p-alta',ai:true,planned:45,actual:0,waste:10},
+  {id:3,title:'Emitir constancias de estudios pendientes',desc:'5 solicitudes acumuladas — alumnos esperando respuesta',date:plusDays(2),status:'en-progreso',priority:'p-alta',ai:true,planned:60,actual:35,waste:12},
+  {id:4,title:'Actualizar lista de alumnos inscritos en sistema',desc:'',date:plusDays(6),status:'pendiente',priority:'p-media',ai:true,planned:40,actual:0,waste:8},
+  {id:5,title:'Justificar faltas de prácticas industriales',desc:'3 alumnos entregaron documentación soporte',date:plusDays(9),status:'pendiente',priority:'p-baja',ai:true,planned:30,actual:0,waste:6},
+  {id:6,title:'Reunión de coordinación con docentes',desc:'Agenda: plan de estudios semestre siguiente',date:plusDays(-2),status:'completada',priority:'p-alta',ai:false,planned:70,actual:70,waste:18},
+  {id:7,title:'Actualizar directorio de egresados',desc:'',date:plusDays(14),status:'pendiente',priority:'p-baja',ai:true,planned:35,actual:0,waste:5},
+];
+let nid=8,activeFilter='todas';
+let pieChart=null,barChart=null,timeChart=null,weeklyChart=null;
+
+// ─── AI ENGINE ───────────────────────────────────────────────
+function calcPriority(dateStr,urgency){
+  if(!dateStr)return{p:'p-media',msg:'Ingresa una fecha para afinar la clasificación.'};
+  const now=new Date();now.setHours(0,0,0,0);
+  const due=new Date(dateStr+'T00:00:00');
+  const diff=Math.round((due-now)/(86400000));
+  let p,reason;
+  if(urgency==='hoy'||diff<=0){p='p-critica';reason=diff<=0?'La fecha ya venció — requiere atención inmediata':'Indicada como urgente hoy';}
+  else if(urgency==='semana'||diff<=2){p='p-alta';reason=`Vence en ${diff} día(s) — prioridad alta recomendada`;}
+  else if(diff<=5){p='p-alta';reason=`Vence en ${diff} días — importante esta semana`;}
+  else if(diff<=10){p='p-media';reason=`Vence en ${diff} días — puede planificarse con calma`;}
+  else{p='p-baja';reason=`Vence en ${diff} días — sin urgencia inmediata`;}
+  if(urgency==='despues'&&(p==='p-alta'||p==='p-media')){p='p-baja';reason+=' (ajustado por urgencia indicada)';}
+  const labels={'p-critica':'🔴 Crítica','p-alta':'🟠 Alta','p-media':'🟢 Media','p-baja':'⬜ Baja'};
+  return{p,msg:`Clasificada como <strong>${labels[p]}</strong>. ${reason}.`};
+}
+function aiAnalyze(){
+  const d=document.getElementById('fDate').value;
+  const u=document.getElementById('fUrgency').value;
+  const t=document.getElementById('fTitle').value.trim();
+  if(!t&&!d)return;
+  const{p,msg}=calcPriority(d,u);
+  document.getElementById('fPriority').value=p;
+  document.getElementById('aiMsg').innerHTML=msg;
+  document.getElementById('aiBox').style.display='block';
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────
+function daysDiff(dateStr){
+  if(!dateStr)return null;
+  const now=new Date();now.setHours(0,0,0,0);
+  const due=new Date(dateStr+'T00:00:00');
+  return Math.round((due-now)/86400000);
+}
+function dueLabel(dateStr){
+  const diff=daysDiff(dateStr);
+  if(diff===null)return null;
+  const fmt=new Date(dateStr+'T00:00:00').toLocaleDateString('es-MX',{day:'numeric',month:'short'});
+  if(diff<0)return{label:`Venció ${fmt}`,cls:'overdue'};
+  if(diff===0)return{label:'Hoy',cls:'today'};
+  if(diff<=3)return{label:`${fmt} (${diff}d)`,cls:'soon'};
+  return{label:fmt,cls:'ok'};
+}
+function progressPct(dateStr){
+  // % of time elapsed toward due date (from 14 days before)
+  const diff=daysDiff(dateStr);
+  if(diff===null)return 0;
+  const total=14;
+  const elapsed=total-diff;
+  return Math.max(0,Math.min(100,Math.round((elapsed/total)*100)));
+}
+function progressColor(pct,cls){
+  if(cls==='overdue')return'var(--red)';
+  if(pct>=80)return'var(--orange)';
+  if(pct>=50)return'var(--primary)';
+  return'var(--green)';
+}
+function pLabel(p){return{'p-critica':'🔴 Crítica','p-alta':'🟠 Alta','p-media':'🟢 Media','p-baja':'⬜ Baja'}[p]||p;}
+
+// ─── RENDER ──────────────────────────────────────────────────
+function render(){
+  const search=(document.getElementById('searchInput').value||'').toLowerCase();
+  const cols=['pendiente','en-progreso','completada'];
+  const pOrd={'p-critica':0,'p-alta':1,'p-media':2,'p-baja':3};
+  let kv={critica:0,alta:0,done:0,prog:0};
+
+  cols.forEach(col=>{
+    let filtered=tasks.filter(t=>{
+      if(t.status!==col)return false;
+      if(activeFilter==='p-critica'&&t.priority!=='p-critica')return false;
+      if(['pendiente','en-progreso','completada'].includes(activeFilter)&&activeFilter!==col)return false;
+      if(search&&!t.title.toLowerCase().includes(search)&&!(t.desc||'').toLowerCase().includes(search))return false;
+      return true;
+    });
+    filtered.sort((a,b)=>{
+      const pd=(pOrd[a.priority]||3)-(pOrd[b.priority]||3);
+      if(pd!==0)return pd;
+      if(a.date&&b.date)return a.date.localeCompare(b.date);
+      return 0;
+    });
+    document.getElementById('cnt-'+col).textContent=filtered.length;
+
+    const el=document.getElementById('col-'+col);
+    if(filtered.length===0){
+      el.innerHTML=`<div class="empty"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M4 3a2 2 0 100 4h12a2 2 0 100-4H4zM3 8h14v7a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/></svg><p>${col==='completada'?'Las tareas completadas aparecen aquí':'Sin tareas en esta columna'}</p></div>`;
+    }else{
+      el.innerHTML=filtered.map(t=>{
+        const dl=dueLabel(t.date);
+        const pct=progressPct(t.date);
+        const pclr=progressColor(pct,dl?dl.cls:'');
+        const isDone=t.status==='completada';
+        const moveBtn=t.status==='pendiente'
+          ?`<button class="card-btn move" onclick="event.stopPropagation();moveTask(${t.id},'en-progreso')" title="Mover a En Progreso"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z"/></svg></button>`
+          :t.status==='en-progreso'
+          ?`<button class="card-btn move" onclick="event.stopPropagation();moveTask(${t.id},'completada')" title="Marcar completada"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg></button>` :'';
+        return`<div class="card${isDone?' done':''}">
+          <div class="card-stripe ${t.priority}"></div>
+          <div style="padding-left:6px">
+            <div class="card-head">
+              <span class="card-title">${t.title}</span>
+              <div class="card-btns">
+                ${moveBtn}
+                <button class="card-btn del" onclick="event.stopPropagation();deleteTask(${t.id})" title="Eliminar"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd"/></svg></button>
+              </div>
+            </div>
+            ${t.desc?`<div class="card-desc">${t.desc}</div>`:''}
+            <div class="card-footer">
+              <span class="priority-tag ${t.priority}">${pLabel(t.priority)}</span>
+              ${dl?`<span class="due-tag ${dl.cls}"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/></svg>${dl.label}</span>`:''}
+            </div>
+            ${!isDone&&t.date?`<div class="card-progress"><div class="card-progress-label"><span>${pct}% del tiempo transcurrido</span><span>${daysDiff(t.date)>0?daysDiff(t.date)+' días restantes':'Vencida'}</span></div><div class="card-progress-bar"><div class="card-progress-fill" style="width:${pct}%;background:${pclr}"></div></div></div>`:''}
+            ${t.ai?`<div class="ai-tag"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>IA clasificó</div>`:''}
+          </div>
+        </div>`;
+      }).join('');
+    }
+  });
+
+  tasks.forEach(t=>{
+    if(t.status==='completada')kv.done++;
+    else{if(t.priority==='p-critica')kv.critica++;else if(t.priority==='p-alta')kv.alta++;if(t.status==='en-progreso')kv.prog++;}
+  });
+  const total=tasks.length;
+  const pct=total?Math.round((kv.done/total)*100):0;
+  const completed = tasks.filter(t=>t.status==='completada');
+  const perf = total?Math.round(((kv.done*100)/total)):0;
+  document.getElementById('kv-critica').textContent=kv.critica;
+  document.getElementById('kv-alta').textContent=kv.alta;
+  document.getElementById('kv-done').textContent=kv.done;
+  document.getElementById('kv-prog').textContent=kv.prog;
+  document.getElementById('kv-pct').textContent=pct+'%';
+  document.getElementById('kv-perf').textContent=perf+'%';
+  document.getElementById('kb-critica').style.width=Math.min(100,kv.critica*20)+'%';
+  document.getElementById('kb-alta').style.width=Math.min(100,kv.alta*20)+'%';
+  document.getElementById('kb-done').style.width=pct+'%';
+  document.getElementById('kb-prog').style.width=Math.min(100,kv.prog*25)+'%';
+  document.getElementById('kb-pct').style.width=pct+'%';
+  document.getElementById('kb-perf').style.width=perf+'%';
+  updateCharts();
+}
+
+// ─── CHARTS ──────────────────────────────────────────────────
+function getThemeColors(){
+  const s=getComputedStyle(document.documentElement);
+  return{
+    text:s.getPropertyValue('--text').trim(),
+    muted:s.getPropertyValue('--muted').trim(),
+    border:s.getPropertyValue('--border').trim(),
+    red:s.getPropertyValue('--red').trim(),
+    orange:s.getPropertyValue('--orange').trim(),
+    primary:s.getPropertyValue('--primary').trim(),
+    faint:s.getPropertyValue('--faint').trim(),
+    blue:s.getPropertyValue('--blue').trim(),
+    green:s.getPropertyValue('--green').trim(),
+  };
+}
+function updateCharts(){
+  const c=getThemeColors();
+  const active=tasks.filter(t=>t.status!=='completada');
+  const counts={'p-critica':0,'p-alta':0,'p-media':0,'p-baja':0};
+  active.forEach(t=>counts[t.priority]++);
+
+  // PIE
+  if(pieChart)pieChart.destroy();
+  pieChart=new Chart(document.getElementById('chartPie'),{
+    type:'doughnut',
+    data:{labels:['Crítica','Alta','Media','Baja'],datasets:[{data:[counts['p-critica'],counts['p-alta'],counts['p-media'],counts['p-baja']],backgroundColor:['#ff1f1f','#ff8c00','#ffd400','#007bff'],borderWidth:2,borderColor:'transparent',hoverOffset:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{color:c.muted,font:{size:11},padding:10,boxWidth:10}},tooltip:{callbacks:{label:ctx=>`${ctx.label}: ${ctx.raw} tarea(s)`}}},cutout:'60%'}
+  });
+
+  // BAR
+  const barTasks=tasks.filter(t=>t.status!=='completada'&&t.date).sort((a,b)=>a.date.localeCompare(b.date)).slice(0,6);
+  const barColors=barTasks.map(t=>{
+    const d=daysDiff(t.date);
+    if(d<=0)return c.red;if(d<=3)return c.orange;return c.blue;
+  });
+  if(barChart)barChart.destroy();
+  barChart=new Chart(document.getElementById('chartBar'),{
+    type:'bar',
+    data:{labels:barTasks.map(t=>t.title.length>18?t.title.slice(0,18)+'…':t.title),datasets:[{data:barTasks.map(t=>{const d=daysDiff(t.date);return d<0?0:d;}),backgroundColor:barColors,borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} día(s) restantes`}}},scales:{x:{ticks:{color:c.muted,font:{size:10}},grid:{color:c.border+'44'}},y:{ticks:{color:c.muted,font:{size:10}},grid:{display:false}}}}
+  });
+
+  const doneTasks = tasks.filter(t=>t.status==='completada');
+  const effective = doneTasks.reduce((s,t)=>s+(t.actual||t.planned||0),0);
+  const wasted = tasks.reduce((s,t)=>s+(t.waste||0),0);
+  const gained = Math.max(0, Math.round(wasted*0.6));
+  if(timeChart)timeChart.destroy();
+  timeChart=new Chart(document.getElementById('chartTime'),{
+    type:'bar',
+    data:{labels:['Tiempo eficaz','Tiempo perdido','Tiempo ganado'],datasets:[{data:[effective,wasted,gained],backgroundColor:[c.green,c.red,c.primary],borderRadius:6,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw} min`}}},scales:{x:{ticks:{color:c.muted,font:{size:10}},grid:{display:false}},y:{ticks:{color:c.muted,font:{size:10}},grid:{color:c.border+'44'}}}}
+  });
+
+  const weeklyData = [80, 70, 88, 76];
+  if(weeklyChart)weeklyChart.destroy();
+  weeklyChart=new Chart(document.getElementById('chartWeekly'),{
+    type:'line',
+    data:{labels:['Semana 1','Semana 2','Semana 3','Semana 4'],datasets:[{label:'Eficacia semanal',data:weeklyData,borderColor:c.primary,backgroundColor:'rgba(1,106,111,0.12)',fill:true,tension:.35,pointBackgroundColor:c.primary,pointBorderColor:c.primary,pointRadius:4,pointHoverRadius:5}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.raw}% de cumplimiento`}}},scales:{y:{min:0,max:100,ticks:{color:c.muted,font:{size:10},callback:v=>v+'%'},grid:{color:c.border+'44'}},x:{ticks:{color:c.muted,font:{size:10}},grid:{display:false}}}}
+  });
+}
+
+
+// ─── ACTIONS ─────────────────────────────────────────────────
+function moveTask(id,status){tasks.find(t=>t.id===id)&&(tasks.find(t=>t.id===id).status=status);render();}
+function deleteTask(id){tasks=tasks.filter(t=>t.id!==id);render();}
+function setFilter(f,btn){activeFilter=f;document.querySelectorAll('.filter-pill').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
+
+// ─── MODAL ───────────────────────────────────────────────────
+function openModal(){
+  document.getElementById('overlay').classList.add('open');
+  document.getElementById('fDate').value=todayStr();
+  aiAnalyze();
+  setTimeout(()=>document.getElementById('fTitle').focus(),150);
+}
+function closeModal(){document.getElementById('overlay').classList.remove('open');}
+function outsideClose(e){if(e.target===document.getElementById('overlay'))closeModal();}
+function resetModal(){['fTitle','fDate','fDesc'].forEach(id=>document.getElementById(id).value='');document.getElementById('fUrgency').value='';document.getElementById('fStatus').value='pendiente';document.getElementById('fPriority').value='p-media';document.getElementById('aiBox').style.display='none';}
+function addTask(){
+  const title=document.getElementById('fTitle').value.trim();
+  if(!title){document.getElementById('fTitle').focus();return;}
+  tasks.push({id:nid++,title,desc:document.getElementById('fDesc').value.trim(),date:document.getElementById('fDate').value,status:document.getElementById('fStatus').value,priority:document.getElementById('fPriority').value,ai:true,planned:45,actual:0,waste:8});
+  render();closeModal();resetModal();
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();if(e.key==='Enter'&&e.ctrlKey&&document.getElementById('overlay').classList.contains('open'))addTask();});
+
+// ─── DATE ────────────────────────────────────────────────────
+document.getElementById('dateChip').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+
+// ─── THEME ───────────────────────────────────────────────────
+(function(){
+  const btn=document.getElementById('themeBtn');
+  const root=document.documentElement;
+  let dark=matchMedia('(prefers-color-scheme:dark)').matches;
+  root.setAttribute('data-theme',dark?'dark':'light');
+  btn.addEventListener('click',()=>{
+    dark=!dark;root.setAttribute('data-theme',dark?'dark':'light');
+    setTimeout(()=>{if(pieChart||barChart)updateCharts();},50);
+  });
+})();
+
+// ─── INIT ────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
